@@ -23,7 +23,6 @@ $(document).ready(function () {
     var $channelsList = $('#channel-list'); //List of channels in navigation drawer
     var $currentChannel = 'all'; //Current channel
 
-    var nickname = "";
     //Send message form triggers
     $sendMessageButton.click(function () {
         sendMessage();
@@ -71,20 +70,20 @@ $(document).ready(function () {
 
     //SOCKET FUNCTIONS
     //Server sends list of users
-    socket.on("users", function (users) {
+    socket.on('users', function (data) {
         $('#users').html('');
 
         //Loop through the users
-        for (i = 0; i < users.length; i++) {
+        for (i = 0; i < data.length; i++) {
             var listItem = $('<li class="user-list-item mdl-list__item">');
             var mainSpan = $('<span class="mdl-list__item-primary-content"></span>');
-            mainSpan.append('<i class="material-icons mdl-list__item-icon">person</i>' + users[i]);
+            mainSpan.append('<i class="material-icons mdl-list__item-icon">person</i>' + data[i]);
             listItem.append(mainSpan);
             $('#users').append(listItem);
         }
     });
     //Server sends a new message
-    socket.on("chat", function (messageObj) {
+    socket.on('chat', function (msg) {
 
         //Calculate time
         var d = new Date();
@@ -105,8 +104,8 @@ $(document).ready(function () {
         var listItem = $('<li class="mdl-list__item mdl-list__item--three-line"></li>');
         var mainSpan = $('<span class="mdl-list__item-primary-content"></span>');
         var icon = $('<i class="material-icons mdl-list__item-avatar">person</i>');
-        var user = $('<span></span>').text(messageObj.nickname);
-        var message = $('<span class="mdl-list__item-text-body"></span>').text(messageObj.text + ' - ' + h + ':' + m + ':' + s);
+        var user = $('<span></span>').text(msg.user);
+        var message = $('<span class="mdl-list__item-text-body"></span>').text(msg.msg + ' - ' + h + ':' + m + ':' + s);
 
         //Build the message html and append it to the correct room div
         mainSpan.append(icon);
@@ -116,15 +115,15 @@ $(document).ready(function () {
         $('#messages-' + msg.room).append(listItem);
 
         //Scroll down
-        $('#chat-list-' + msg.room).animate({ scrollTop: $('#chat-list-' + messageObj.convesation).prop("scrollHeight") }, 500);
+        $('#chat-list-' + msg.room).animate({ scrollTop: $('#chat-list-' + msg.room).prop("scrollHeight") }, 500);
     });
 
     //Server sends
-    socket.on("user", function () {
+    socket.on('user', function () {
 
         $('#chat-cell').children('div').each(function () {
             if ($(this).is(":visible")) {
-                socket.emit("getusers", $(this).prop('id').substring(10));
+                socket.emit('getusers', $(this).prop('id').substring(10));
             }
         });
     });
@@ -139,7 +138,7 @@ $(document).ready(function () {
                 $(this).hide();
             }
         });
-        socket.emit("getusers", name);
+        socket.emit('getusers', name);
         $currentChannel = name;
         $('#header-title').text(name);
     }
@@ -162,7 +161,7 @@ $(document).ready(function () {
             $chatWindow.show();
             $addChannelWindow.hide();
             createChannelDiv(newChannelName);
-            socket.emit("join", newChannelName);
+            socket.emit('join', newChannelName);
             loadChannel(newChannelName);
         } else {
             $addChannelFormInput.val('');
@@ -183,7 +182,6 @@ $(document).ready(function () {
 
     //Login 
     function login() {
-        nickname = loginChatFormInput.val();
         $('#drawer-title').text('Chat (' + $loginChatFormInput.val() + ')');
         createChannelDiv('all');
         $('#chat-list-all').show();
@@ -215,7 +213,7 @@ $(document).ready(function () {
             }
         });
 
-        socket.emit('chat', { text: $sendMessageFormInput.val(), nickname: nickname, convesation: $currentroom });
+        socket.emit('chat', { msg: $sendMessageFormInput.val(), room: $currentroom });
         $sendMessageFormInput.val('');
     }
 
