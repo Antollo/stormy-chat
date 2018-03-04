@@ -22,7 +22,8 @@ $(document).ready(function () {
 
     var $channelsList = $('#channel-list'); //List of channels in navigation drawer
     var $currentChannel = 'all'; //Current channel
-
+    
+    var $nickname = "";
     //Send message form triggers
     $sendMessageButton.click(function () {
         sendMessage();
@@ -83,7 +84,7 @@ $(document).ready(function () {
         }
     });
     //Server sends a new message
-    socket.on('chat', function (msg) {
+    socket.on('chat', function (messageObj) {
 
         //Calculate time
         var d = new Date();
@@ -104,18 +105,18 @@ $(document).ready(function () {
         var listItem = $('<li class="mdl-list__item mdl-list__item--three-line"></li>');
         var mainSpan = $('<span class="mdl-list__item-primary-content"></span>');
         var icon = $('<i class="material-icons mdl-list__item-avatar">person</i>');
-        var user = $('<span></span>').text(msg.user);
-        var message = $('<span class="mdl-list__item-text-body"></span>').text(msg.msg + ' - ' + h + ':' + m + ':' + s);
+        var user = $('<span></span>').text(messageObj.user);
+        var message = $('<span class="mdl-list__item-text-body"></span>').text(messageObj.text + ' - ' + h + ':' + m + ':' + s);
 
         //Build the message html and append it to the correct room div
         mainSpan.append(icon);
         mainSpan.append(user);
         mainSpan.append(message);
         listItem.append(mainSpan);
-        $('#messages-' + msg.room).append(listItem);
+        $('#messages-' + messageObj.conversation).append(listItem);
 
         //Scroll down
-        $('#chat-list-' + msg.room).animate({ scrollTop: $('#chat-list-' + msg.room).prop("scrollHeight") }, 500);
+        $('#chat-list-' + messageObj.conversation).animate({ scrollTop: $('#chat-list-' +messageObj.conversation).prop("scrollHeight") }, 500);
     });
 
     //Server sends
@@ -182,6 +183,7 @@ $(document).ready(function () {
 
     //Login 
     function login() {
+        $nickname = $loginChatFormInput.val();
         $('#drawer-title').text('Chat (' + $loginChatFormInput.val() + ')');
         createChannelDiv('all');
         $('#chat-list-all').show();
@@ -213,7 +215,7 @@ $(document).ready(function () {
             }
         });
 
-        socket.emit('chat', { msg: $sendMessageFormInput.val(), room: $currentroom });
+        socket.emit('chat', { text: $sendMessageFormInput.val(), user: $nickname, conversation: $currentroom });
         $sendMessageFormInput.val('');
     }
 

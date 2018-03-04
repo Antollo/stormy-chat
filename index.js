@@ -4,7 +4,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
 var users = {};
-var rooms = {};
+var conversatios = {};
 
 
 app.use(express.static(__dirname + '/public'));
@@ -23,37 +23,37 @@ io.on('connection', function (socket) {
             socket.nickname = data;
             users[socket.nickname] = socket;
             socket.join('all');
-            if (rooms['all'] == undefined) rooms['all'] = [];
-            rooms['all'].push(socket.nickname);
+            if (conversatios['all'] == undefined) conversatios['all'] = [];
+            conversatios['all'].push(socket.nickname);
             io.emit('user');
         }
     });
 
-    socket.on('join', function (room) {
-        socket.join(room);
+    socket.on('join', function (conversation) {
+        socket.join(conversation);
         io.emit('user');
-        if (rooms[room] == undefined) rooms[room] = [];
-        rooms[room].push(socket.nickname);
+        if (conversatios[conversation] == undefined) conversatios[conversation] = [];
+        conversatios[conversation].push(socket.nickname);
     });
 
 
-    socket.on('chat', function (msg) {
-        io.to(msg.room).emit('chat', { msg: msg.msg, user: socket.nickname, room: msg.room });
+    socket.on('chat', function (messageObj) {
+        io.to(messageObj.conversation).emit('chat', messageObj);
     });
 
     socket.on('getusers', function (data) {
-        socket.emit('users', rooms[data]);
+        socket.emit('users', conversatios[data]);
     });
 
     socket.on('disconnect', function (data) {
         delete users[socket.nickname];
-        for (var room in rooms) {
-            if (rooms.hasOwnProperty(room)) {
-                var element = rooms[room];
+        for (var conversation in conversatios) {
+            if (conversatios.hasOwnProperty(conversation)) {
+                var element = conversatios[conversation];
                 var index = element.indexOf(socket.nickname);
                 if (index > -1) {
                     element.splice(index, 1);
-                    io.to(room).emit('user');
+                    io.to(conversation).emit('user');
                 }
             }
         }  
