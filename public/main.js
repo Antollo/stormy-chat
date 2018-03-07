@@ -1,6 +1,7 @@
+var socket;
 $(document).ready(function () {
 
-    var socket = io(); //Socket instance
+    socket = io(); //Socket instance
 
     var $chatWindow = $('#chat'); //Chat window div
     var $loginWindow = $('#login'); //Login window div
@@ -102,16 +103,18 @@ $(document).ready(function () {
         }
 
         //Create new message
-        var listItem = $('<li class="mdl-list__item mdl-list__item--three-line"></li>');
-        var mainSpan = $('<span class="mdl-list__item-primary-content"></span>');
+        var listItem = $('<li class="mdl-list__item mdl"></li>');
+        var mainSpan = $('<div></div>');
         var icon = $('<i class="material-icons mdl-list__item-avatar">person</i>');
-        var user = $('<span></span>').text(messageObj.user);
-        var message = $('<span class="mdl-list__item-text-body"></span>').text(messageObj.text + ' - ' + h + ':' + m + ':' + s);
-
+        //var user = $('<div class="small-text"></div>').text(messageObj.user);
+        var message = $('<div class="bubble" style="white-space:pre;"></div>').text(messageObj.text);
+        //message.style.whiteSpace = "pre";
+        var time = $('<div class="small-text"></div>').text(messageObj.user + ', ' + h + ':' + m + ':' + s);
         //Build the message html and append it to the correct room div
-        mainSpan.append(icon);
-        mainSpan.append(user);
+        //mainSpan.append(icon);
+        //mainSpan.append(user);
         mainSpan.append(message);
+        mainSpan.append(time);
         listItem.append(mainSpan);
         $('#messages-' + messageObj.conversation).append(listItem);
 
@@ -180,8 +183,6 @@ $(document).ready(function () {
         $('#chat-cell').append(newChannelDiv);
 
     }
-
-    //Login 
     function login() {
         $nickname = $loginChatFormInput.val();
         $('#drawer-title').text('Chat (' + $loginChatFormInput.val() + ')');
@@ -193,9 +194,7 @@ $(document).ready(function () {
                 $loginWindow.hide();
                 $chatWindow.show();
             } else {
-                var $errorText = $('#username-field-title');
-                $errorText.css("color", "red");
-                $errorText.html('Username already taken');
+                $(".mdl-js-snackbar")[0].MaterialSnackbar.showSnackbar({message: 'Username already taken.'});
             }
 
         });

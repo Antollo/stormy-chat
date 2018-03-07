@@ -6,10 +6,19 @@
     display: none;
 }
 
+.material-bg {
+    background: linear-gradient(110deg, #fdcd3b 50%, #ffed4b 50%);
+}
+
 .drawer {
     border: none;
     
 }
+
+a {
+    cursor: pointer;
+}
+
 .navigation {
   -webkit-flex-grow: 1;
       -ms-flex-positive: 1;
@@ -17,14 +26,12 @@
 }
 
 .dialog-card {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 30%;
-    height: 200px;
     margin: auto;
+}
+
+.dialog-card {
+    display: flex;
+    padding: 2em;
 }
 
 .add-channel {
@@ -32,7 +39,14 @@
 }
 
 .send-button {
-    padding: 16px 0px;
+    margin: auto;  
+    position: absolute;
+    left:0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    height: 1.8em;
+    width: 1.8em;
 }
 
 .message-area {
@@ -41,11 +55,15 @@
     width: 100%;
     bottom: 8px;
     padding: 0;
+    margin: 0;
 }
 
 .message-card {
     width: inherit;
     min-height: inherit;
+    border-radius: 50vh;
+    padding: 0;
+    margin: 0;
 }
 
 .message-field {
@@ -60,8 +78,8 @@
     position: absolute;
     left : 0;
     right : 0;
-    top:0;
-    bottom:0;
+    top: 0;
+    bottom: 0;
 }
 
 .user-card {
@@ -88,4 +106,20 @@
 .user-list-item {
     padding-top: 0;
     padding-bottom: 0;
+}
+
+.bubble {
+    background-color: #fdcd3b;
+    color: white;
+    padding: 1em;
+    border-radius: 1em;
+}
+
+.small-text {
+    padding-left: 6px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    font-weight: 300;
+    font-size: 13px;
+    color: #757575;
 }
