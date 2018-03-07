@@ -7,7 +7,7 @@
 }
 
 .material-bg {
-    background: linear-gradient(110deg, #fdcd3b 50%, #ffed4b 50%);
+    background: linear-gradient(110deg, #FFC107 50%, #ffed4b 50%);
 }
 
 .drawer {
@@ -31,7 +31,6 @@ a {
 
 .dialog-card {
     display: flex;
-    padding: 2em;
 }
 
 .add-channel {
@@ -109,7 +108,7 @@ a {
 }
 
 .bubble {
-    background-color: #fdcd3b;
+    background-color: #FFC107;
     color: white;
     padding: 1em;
     border-radius: 1em;
