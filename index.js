@@ -99,7 +99,7 @@ io.on('connection', function (socket) {
         socket.join(conversation);
         io.emit('user');
         if (conversations[conversation] == undefined) conversations[conversation] = [];
-        conversations[conversation].push(socket.nickname);
+        if(conversations[conversation].indexOf(socket.nickname) == -1) conversations[conversation].push(socket.nickname);
         MongoClient.connect(url, function (err, db) {
             if (err) throw err;
             var dbo = db.db('stormy-chat');
@@ -183,12 +183,13 @@ io.on('connection', function (socket) {
         delete users[socket.nickname];
         for (var conversation in conversations) {
             if (conversations.hasOwnProperty(conversation)) {
-                var element = conversations[conversation];
-                var index = element.indexOf(socket.nickname);
-                if (index > -1) {
-                    element.splice(index, 1);
-                    io.to(conversation).emit('user');
+                var index = conversations[conversation].indexOf(socket.nickname);
+                while (index > -1) {
+                    conversations[conversation].splice(index, 1);
+                    index = conversations[conversation].indexOf(socket.nickname);
                 }
+                console.log(conversations)
+                io.to(conversation).emit('user');
             }
         } 
         console.log('User ' + socket.nickname + ' disconnected.');
