@@ -4,7 +4,8 @@
   "description": "Training chat application rewritten from https://github.com/leevilehtonen/mdl-socket-chat, made with Socket.io and Material Design Lite.",
   "dependencies": {
     "express": "^4.16.2",
-    "socket.io": "^2.0.4"
+    "socket.io": "^2.0.4",
+    "mongodb": "^3.0.4"
   },
   "main": "index.js",
   "scripts": {

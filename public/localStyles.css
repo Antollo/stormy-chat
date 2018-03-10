@@ -6,6 +6,16 @@
     display: none;
 }
 
+#login {
+    display: none;
+}
+
+.non-flex {
+    display: -webkit-block;
+    display: -ms-block;
+    display: block;
+}
+
 .material-bg {
     background: linear-gradient(110deg, #FFC107 50%, #ffed4b 50%);
 }
@@ -25,11 +35,8 @@ a {
           flex-grow: 1;
 }
 
-.dialog-card {
+.centrify {
     margin: auto;
-}
-
-.dialog-card {
     display: flex;
 }
 
@@ -108,10 +115,10 @@ a {
 }
 
 .bubble {
-    background-color: #FFC107;
     color: white;
     padding: 1em;
     border-radius: 1em;
+    white-space: pre-wrap;
 }
 
 .small-text {

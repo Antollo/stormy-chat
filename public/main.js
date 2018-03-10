@@ -1,19 +1,20 @@
-var socket;
 $(document).ready(function () {
 
-    socket = io(); //Socket instance
+    var socket = io(); //Socket instance
 
     var $chatWindow = $('#chat'); //Chat window div
     var $loginWindow = $('#login'); //Login window div
+    var $loadingWindow = $('#loading'); //Loading window div
     var $addChannelWindow = $('#channel'); //Add channel window (dialog) div
 
     var $sendMessageForm = $('#send-message-form'); //Form for sending messages
     var $sendMessageFormInput = $('#send-message-form-input'); //Textfield for message input
     var $sendMessageButton = $('#send-message-button'); //Button for sending message
 
-    var $loginChatForm = $('#login-chat-form'); //Form for adding username
-    var $loginChatFormInput = $('#login-chat-form-input'); //Textfield for username input
-    var $loginChatButton = $('#login-chat-button'); //Button for logging in
+    var $loginForm = $('#login-form'); //Form for adding username
+    var $loginNicknameInput = $('#login-nickname'); //Textfield for nickname input
+    var $loginPasswordInput = $('#login-password'); //Textfield for password input
+    var $loginButton = $('#login-button'); //Button for logging in
 
     var $addChannelForm = $('#add-channel-form'); //Form for adding channel
     var $addChannelFormInput = $('#add-channel-form-input'); //Textfield for channel name input
@@ -22,9 +23,11 @@ $(document).ready(function () {
     var $addChannelFab = $('#add-channel-button'); //FAB button for opening add-channel-form
 
     var $channelsList = $('#channel-list'); //List of channels in navigation drawer
-    var $currentChannel = 'all'; //Current channel
+    var currentChannel = 'all'; //Current channel
     
-    var $nickname = "";
+    var nickname = '';
+
+
     //Send message form triggers
     $sendMessageButton.click(function () {
         sendMessage();
@@ -36,22 +39,22 @@ $(document).ready(function () {
     });
 
     //Login form triggers
-    $loginChatButton.click(function () {
+    $loginButton.click(function () {
         login();
         return false;
     });
-    $loginChatForm.submit(function () {
+    $loginForm.submit(function () {
         login();
         return false;
     });
 
     //Add new channel triggers
     $addChannelButton.click(function () {
-        addNewChannel();
+        addNewChannel($addChannelFormInput.val().trim().toLowerCase().replace(/\s/g,''));
         return false;
     });
     $addChannelForm.submit(function () {
-        addNewChannel();
+        addNewChannel($addChannelFormInput.val().trim().toLowerCase().replace(/\s/g,''));
         return false;
     });
 
@@ -88,28 +91,28 @@ $(document).ready(function () {
     socket.on('chat', function (messageObj) {
 
         //Calculate time
-        var d = new Date();
-        var s = d.getSeconds();
-        var m = d.getMinutes();
-        var h = d.getHours();
-        if (s < 10) {
-            s = '0' + s;
-        }
-        if (m < 10) {
-            m = '0' + m;
-        }
-        if (h < 10) {
-            h = '0' + h;
-        }
+        var date = new Date();
+        date.setTime(messageObj.date);
 
         //Create new message
-        var listItem = $('<li class="mdl-list__item mdl"></li>');
+        var listItem = $('<li class="mdl-list__item mdl non-flex"></li>');
         var mainSpan = $('<div></div>');
         var icon = $('<i class="material-icons mdl-list__item-avatar">person</i>');
         //var user = $('<div class="small-text"></div>').text(messageObj.user);
-        var message = $('<div class="bubble" style="white-space:pre;"></div>').text(messageObj.text);
+        var message = $('<div class="bubble"></div>').text(messageObj.text);
         //message.style.whiteSpace = "pre";
-        var time = $('<div class="small-text"></div>').text(messageObj.user + ', ' + h + ':' + m + ':' + s);
+        var time = $('<div class="small-text"></div>').text(messageObj.user + ', ' + date.toLocaleString());
+
+        if(messageObj.user == nickname) 
+        {
+            mainSpan.css('float', 'right');
+            message.addClass('mdl-color--indigo-A200')
+        }
+        else
+        {
+            mainSpan.css('float', 'left');
+            message.addClass('mdl-color--amber-500')
+        }
         //Build the message html and append it to the correct room div
         //mainSpan.append(icon);
         //mainSpan.append(user);
@@ -119,7 +122,7 @@ $(document).ready(function () {
         $('#messages-' + messageObj.conversation).append(listItem);
 
         //Scroll down
-        $('#chat-list-' + messageObj.conversation).animate({ scrollTop: $('#chat-list-' +messageObj.conversation).prop("scrollHeight") }, 500);
+        $('#chat-list-' + messageObj.conversation).animate({ scrollTop: $('#chat-list-' + messageObj.conversation).prop("scrollHeight") }, 1000);
     });
 
     //Server sends
@@ -129,6 +132,12 @@ $(document).ready(function () {
             if ($(this).is(":visible")) {
                 socket.emit('getusers', $(this).prop('id').substring(10));
             }
+        });
+    });
+
+    socket.on('join', function (data) {
+        data.forEach(function(name) {
+            addNewChannel(name);
         });
     });
 
@@ -142,14 +151,14 @@ $(document).ready(function () {
                 $(this).hide();
             }
         });
-        socket.emit('getusers', name);
-        $currentChannel = name;
+        socket.emit('getusers', name);       
+        currentChannel = name;
         $('#header-title').text(name);
     }
 
     //Create/Join new channel
-    function addNewChannel() {
-        var newChannelName = $addChannelFormInput.val().trim().toLowerCase();
+    function addNewChannel(newChannelName) {
+        //var newChannelName = $addChannelFormInput.val().trim().toLowerCase();
         var alreadyJoined = false;
         $('#chat-cell').children('div').each(function () {
             if ($(this).prop('id').substring(10) == newChannelName) {
@@ -157,7 +166,7 @@ $(document).ready(function () {
             }
         });
         if (!alreadyJoined) {
-            var channelLink = $('<a class="mdl-navigation__link mdl-color-text--blue-grey-50" id="channel-' + newChannelName + '"></a>');
+            var channelLink = $('<a class="mdl-navigation__link" id="channel-' + newChannelName + '" onclick="document.getElementById(`chat-layout`).MaterialLayout.toggleDrawer()"></a>');
             channelLink.text(newChannelName);
             $channelsList.prepend(channelLink);
             $addChannelFormInput.val('');
@@ -167,12 +176,13 @@ $(document).ready(function () {
             createChannelDiv(newChannelName);
             socket.emit('join', newChannelName);
             loadChannel(newChannelName);
+            socket.emit('gethistory', newChannelName); 
         } else {
             $addChannelFormInput.val('');
             $loginWindow.hide();
             $chatWindow.show();
             $addChannelWindow.hide();
-            loadChannel(newChannelName);
+            loadChannel(newChannelName);   
         }
     }
     //Create "window" for new channel
@@ -183,22 +193,29 @@ $(document).ready(function () {
         $('#chat-cell').append(newChannelDiv);
 
     }
+    
     function login() {
-        $nickname = $loginChatFormInput.val();
-        $('#drawer-title').text('Chat (' + $loginChatFormInput.val() + ')');
-        createChannelDiv('all');
-        $('#chat-list-all').show();
-        socket.emit('login', $loginChatFormInput.val(), function (data) {
-
-            if (data) {
+        nickname = $loginNicknameInput.val();
+        $('#drawer-title').text($loginNicknameInput.val());
+        socket.emit('login', {nickname: $loginNicknameInput.val(), password: $loginPasswordInput.val()}, function (res) {
+            if (res == 1) {
+                Cookies.set('nickname', $loginNicknameInput.val());
+                Cookies.set('password', $loginPasswordInput.val());
+                $loadingWindow.hide()
                 $loginWindow.hide();
                 $chatWindow.show();
             } else {
-                $(".mdl-js-snackbar")[0].MaterialSnackbar.showSnackbar({message: 'Username already taken.'});
+                $loadingWindow.hide()
+                $loginWindow.show();
+                if(res == 0) {
+                    $(".mdl-js-snackbar").get(0).MaterialSnackbar.showSnackbar({message: 'User ' + $loginNicknameInput.val() + ' already logged in.'});
+                } else {
+                    $(".mdl-js-snackbar").get(0).MaterialSnackbar.showSnackbar({message: 'Wrong password.'});
+                }
             }
-
+            $loginNicknameInput.parent().get(0).MaterialTextfield.change('');
+            $loginPasswordInput.parent().get(0).MaterialTextfield.change('');
         });
-        $loginChatFormInput.val('');
 
     }
 
@@ -207,15 +224,30 @@ $(document).ready(function () {
     //Send message
     function sendMessage() {
 
-        var $currentroom = "";
+        var currentroom = '';
         $('#chat-cell').children('div').each(function () {
             if ($(this).is(":visible")) {
-                $currentroom = $(this).prop('id').substring(10);
+                currentroom = $(this).prop('id').substring(10);
             }
         });
-
-        socket.emit('chat', { text: $sendMessageFormInput.val(), user: $nickname, conversation: $currentroom });
-        $sendMessageFormInput.val('');
+        socket.emit('chat', { text: $sendMessageFormInput.val(), user: nickname, conversation: currentroom, date: new Date().getTime()});
+        $sendMessageFormInput.parent().get(0).MaterialTextfield.change('');
     }
-
+    var loadingCounter = 0;
+    $('.mdl-layout').on('mdl-componentupgraded', function(e) {
+        if ($(e.target).hasClass('mdl-layout')) {
+            loadingCounter++;
+            if(loadingCounter != 3) return;
+            if(Cookies.get('nickname') != undefined) {
+                $loginNicknameInput.val(Cookies.get('nickname'));
+                $loginPasswordInput.val(Cookies.get('password'));
+                login();
+            }
+            else
+            {
+                $loadingWindow.hide();
+                $loginWindow.show();
+            }
+        }
+    });
 });
