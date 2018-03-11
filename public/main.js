@@ -19,6 +19,7 @@ $(document).ready(function () {
     var $addChannelForm = $('#add-channel-form'); //Form for adding channel
     var $addChannelFormInput = $('#add-channel-form-input'); //Textfield for channel name input
     var $addChannelButton = $('#add-channel-form-button'); //Button for adding channel
+    var $closeChannelButton = $('#close-channel-form-button'); //Button for adding channel
 
     var $addChannelFab = $('#add-channel-button'); //FAB button for opening add-channel-form
 
@@ -50,18 +51,29 @@ $(document).ready(function () {
 
     //Add new channel triggers
     $addChannelButton.click(function () {
-        addNewChannel($addChannelFormInput.val().trim().toLowerCase().replace(/\s/g,''));
+        $addChannelWindow.get(0).close();
+        $addChannelWindow.hide();
+        addNewChannel($addChannelFormInput.val());
         return false;
     });
+
+    $closeChannelButton.click(function () {
+        $addChannelWindow.get(0).close();
+        $addChannelWindow.hide();
+    });
     $addChannelForm.submit(function () {
-        addNewChannel($addChannelFormInput.val().trim().toLowerCase().replace(/\s/g,''));
+        $addChannelWindow.get(0).close();
+        $addChannelWindow.hide();
+        addNewChannel($addChannelFormInput.val());
         return false;
     });
 
     //Open add new channel dialog
     $addChannelFab.click(function () {
         $loginWindow.hide();
-        $chatWindow.show();
+        //$chatWindow.hide();
+        
+        $addChannelWindow.get(0).showModal();
         $addChannelWindow.show();
     });
 
@@ -158,7 +170,7 @@ $(document).ready(function () {
 
     //Create/Join new channel
     function addNewChannel(newChannelName) {
-        //var newChannelName = $addChannelFormInput.val().trim().toLowerCase();
+        newChannelName = newChannelName.trim().toLowerCase().replace(/\s/g,'').replace(/"/g,'');
         var alreadyJoined = false;
         $('#chat-cell').children('div').each(function () {
             if ($(this).prop('id').substring(10) == newChannelName) {
@@ -166,7 +178,7 @@ $(document).ready(function () {
             }
         });
         if (!alreadyJoined) {
-            var channelLink = $('<a class="mdl-navigation__link" id="channel-' + newChannelName + '" onclick="document.getElementById(`chat-layout`).MaterialLayout.toggleDrawer()"></a>');
+            var channelLink = $('<a class="mdl-navigation__link" id="channel-' + newChannelName + '" onclick="document.getElementById(`chat-layout`).MaterialLayout.hideDrawer()"></a>');
             channelLink.text(newChannelName);
             $channelsList.prepend(channelLink);
             $addChannelFormInput.val('');
@@ -247,6 +259,20 @@ $(document).ready(function () {
             {
                 $loadingWindow.hide();
                 $loginWindow.show();
+            }
+            document.getElementById(`chat-layout`).MaterialLayout.hideDrawer = function () {
+                var drawerButton = this.element_.querySelector('.' + this.CssClasses_.DRAWER_BTN);
+                // Set accessibility properties.
+                if (this.drawer_.classList.contains(this.CssClasses_.IS_DRAWER_OPEN)) {
+                    this.drawer_.classList.toggle(this.CssClasses_.IS_DRAWER_OPEN);
+                    this.obfuscator_.classList.toggle(this.CssClasses_.IS_DRAWER_OPEN);
+                    this.drawer_.setAttribute('aria-hidden', 'true');
+                    drawerButton.setAttribute('aria-expanded', 'false');
+                }
+            };
+            var dialog = $addChannelWindow.get(0);
+            if (! dialog.showModal) {
+                dialogPolyfill.registerDialog(dialog);
             }
         }
     });

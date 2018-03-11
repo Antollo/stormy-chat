@@ -25,11 +25,13 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.amber-indigo.min.css">
     <link rel="stylesheet" href="localStyles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dialog-polyfill/0.4.9/dialog-polyfill.min.css">
 
     <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dialog-polyfill/0.4.9/dialog-polyfill.min.js"></script>
     <script src="main.js"></script>
 </head>
 
@@ -38,7 +40,6 @@
         <div class="mdl-snackbar__text"></div>
         <button class="mdl-snackbar__action" type="button"></button>
     </div>
-
 
     <div id="loading">
         <div class="mdl-layout mdl-layout--fixed-header mdl-js-layout">
@@ -93,13 +94,14 @@
                 <span class="mdl-layout-title" id="drawer-title">Chat()</span>
                 <nav class="mdl-navigation" id="channel-list">
 
-                    <button class="add-channel mdl-button mdl-js-button mdl-button--fab mdl-button--colored mdl-js-ripple-effect" id="add-channel-button">
+                    <button class="add-channel mdl-button mdl-js-button mdl-button--fab mdl-button--colored mdl-js-ripple-effect" id="add-channel-button" onclick="document.getElementById(`chat-layout`).MaterialLayout.hideDrawer()">
                         <i class="material-icons">add</i>
                     </button>
                 </nav>
             </div>
             <main class="mdl-layout__content mdl-color--grey-200">
                 <div class="page-content">
+                    
                     <section class="chat-area mdl-grid">
                         <div class="mdl-cell mdl-cell--9-col" id="chat-cell">
                         </div>
@@ -137,7 +139,7 @@
             </main>
         </div>
     </div>
-    <div id="channel">
+    <!--<div>
         <div class="mdl-layout mdl-layout--fixed-header mdl-js-layout mdl-color--grey-200">
             <main class="mdl-layout__content" style="background-color:rgba(0,0,0,0.5)">
                 <div class="dialog-card mdl-card mdl-shadow--16dp">
@@ -158,9 +160,22 @@
                 </div>
             </main>
         </div>
-    </div>
-
-
+    </div>-->
+    <dialog id="channel" class="mdl-dialog">
+            <h3 class="mdl-dialog__title">Join channel</h3>
+            <div class="mdl-dialog__content">
+                <form action="" id="add-channel-form">
+                    <div class="channelname-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" id="add-channel-form-input">
+                        <label class="mdl-textfield__label" for="add-channel-form-input">Channel</label>
+                    </div>
+                </form>
+            </div>
+            <div class="mdl-dialog__actions">
+                <button id="add-channel-form-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--primary">Join</button>
+                <button id="close-channel-form-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--accent">Close</button>
+            </div>
+      </dialog>
 
 </body>
 
