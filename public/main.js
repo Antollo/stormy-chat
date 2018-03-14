@@ -41,11 +41,9 @@ $(document).ready(function () {
         return false;
     });
     $(document).on('change', '#send-image-button', function () {
-        alert('started!');
         for(var i = 0; i < $sendImageButton.prop('files').length; i++) {
             var reader = new FileReader();
             reader.onloadend = function() {
-                console.log('RESULT', reader.result)
                 sendImage(reader.result);
             }
             reader.readAsDataURL($sendImageButton.prop('files')[i]);
