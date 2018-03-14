@@ -147,6 +147,26 @@ io.on('connection', function (socket) {
         });
     });
 
+    socket.on('exit', function (conversation) {
+        socket.leave(conversation);
+        io.emit('user');
+        if(conversations[conversation].indexOf(socket.nickname) != -1) conversations[conversation].splice(conversations[conversation].indexOf(socket.nickname), 1);
+        MongoClient.connect(url, function (err, db) {
+            if (err) throw err;
+            var dbo = db.db('stormy-chat');
+            dbo.collection('users').findOne({nickname: socket.nickname}, function(err, result) {
+                if (err) throw err;
+                if(result.conversations.indexOf(conversation) != -1) {
+                    result.conversations.splice(result.conversations.indexOf(conversation), 1);
+                    dbo.collection('users').updateOne({nickname: socket.nickname}, {$set: result}, function(err, res) {
+                        if (err) throw err;
+                        console.log('User ' + socket.nickname + ' exited ' + conversation + '.');
+                    });
+                }
+            });
+        });
+    });
+
 
     socket.on('chat', function (messageObj) {
         io.to(messageObj.conversation).emit('chat', messageObj);

@@ -10,11 +10,13 @@ $(document).ready(function () {
     var $sendMessageForm = $('#send-message-form'); //Form for sending messages
     var $sendMessageFormInput = $('#send-message-form-input'); //Textfield for message input
     var $sendMessageButton = $('#send-message-button'); //Button for sending message
+    var $sendImageButton = $('#send-image-button'); //Button for sending image
 
     var $loginForm = $('#login-form'); //Form for adding username
     var $loginNicknameInput = $('#login-nickname'); //Textfield for nickname input
     var $loginPasswordInput = $('#login-password'); //Textfield for password input
     var $loginButton = $('#login-button'); //Button for logging in
+    var $exitChannelButton = $('#exit-channel-button'); //Button for exiting button
 
     var $addChannelForm = $('#add-channel-form'); //Form for adding channel
     var $addChannelFormInput = $('#add-channel-form-input'); //Textfield for channel name input
@@ -37,6 +39,17 @@ $(document).ready(function () {
     $sendMessageForm.submit(function () {
         sendMessage();
         return false;
+    });
+    $(document).on('change', '#send-image-button', function () {
+        alert('started!');
+        for(var i = 0; i < $sendImageButton.prop('files').length; i++) {
+            var reader = new FileReader();
+            reader.onloadend = function() {
+                console.log('RESULT', reader.result)
+                sendImage(reader.result);
+            }
+            reader.readAsDataURL($sendImageButton.prop('files')[i]);
+        }
     });
 
     //Login form triggers
@@ -85,6 +98,17 @@ $(document).ready(function () {
         }
     });
 
+    $exitChannelButton.click(function () {
+        var currentroom = '';
+        $('#chat-cell').children('div').each(function () {
+            if ($(this).is(":visible")) {
+                currentroom = $(this).prop('id').substring(10);
+            }
+        });
+        socket.emit('exit', currentroom);
+        location.reload();
+    })
+
     //SOCKET FUNCTIONS
     //Server sends list of users
     socket.on('users', function (data) {
@@ -111,7 +135,12 @@ $(document).ready(function () {
         var mainSpan = $('<div></div>');
         var icon = $('<i class="material-icons mdl-list__item-avatar">person</i>');
         //var user = $('<div class="small-text"></div>').text(messageObj.user);
-        var message = $('<div class="bubble"></div>').text(messageObj.text);
+        var message = $('<div class="bubble"></div>');
+        if(messageObj.text != undefined) {
+            message.text(messageObj.text);
+        } else {
+            message.append($('<img src=' + messageObj.image + '>').css('max-width','100%'));
+        }
         //message.style.whiteSpace = "pre";
         var time = $('<div class="small-text"></div>').text(messageObj.user + ', ' + date.toLocaleString());
 
@@ -134,7 +163,7 @@ $(document).ready(function () {
         $('#messages-' + messageObj.conversation).append(listItem);
 
         //Scroll down
-        $('#chat-list-' + messageObj.conversation).animate({ scrollTop: $('#chat-list-' + messageObj.conversation).prop("scrollHeight") }, 1000);
+        $('#chat-list-' + messageObj.conversation).animate({ scrollTop: $('#chat-list-' + messageObj.conversation).prop("scrollHeight") }, 100);
     });
 
     //Server sends
@@ -166,6 +195,8 @@ $(document).ready(function () {
         socket.emit('getusers', name);       
         currentChannel = name;
         $('#header-title').text(name);
+        $('#chat-list-' + name).animate({ scrollTop: $('#chat-list-' + name).prop("scrollHeight") }, 500);
+
     }
 
     //Create/Join new channel
@@ -178,7 +209,7 @@ $(document).ready(function () {
             }
         });
         if (!alreadyJoined) {
-            var channelLink = $('<a class="mdl-navigation__link" id="channel-' + newChannelName + '" onclick="document.getElementById(`chat-layout`).MaterialLayout.hideDrawer()"></a>');
+            var channelLink = $('<a class="mdl-navigation__link drawer-button" id="channel-' + newChannelName + '" onclick="document.getElementById(`chat-layout`).MaterialLayout.hideDrawer()"></a>');
             channelLink.text(newChannelName);
             $channelsList.prepend(channelLink);
             $addChannelFormInput.val('');
@@ -235,7 +266,6 @@ $(document).ready(function () {
 
     //Send message
     function sendMessage() {
-
         var currentroom = '';
         $('#chat-cell').children('div').each(function () {
             if ($(this).is(":visible")) {
@@ -244,6 +274,16 @@ $(document).ready(function () {
         });
         socket.emit('chat', { text: $sendMessageFormInput.val(), user: nickname, conversation: currentroom, date: new Date().getTime()});
         $sendMessageFormInput.parent().get(0).MaterialTextfield.change('');
+    }
+
+    function sendImage(base64) {
+        var currentroom = '';
+        $('#chat-cell').children('div').each(function () {
+            if ($(this).is(":visible")) {
+                currentroom = $(this).prop('id').substring(10);
+            }
+        });
+        socket.emit('chat', { image: base64, user: nickname, conversation: currentroom, date: new Date().getTime()});
     }
     var loadingCounter = 0;
     $('.mdl-layout').on('mdl-componentupgraded', function(e) {

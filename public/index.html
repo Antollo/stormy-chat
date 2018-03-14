@@ -88,15 +88,29 @@
                 <div class="mdl-layout__header-row">
                     <span class="mdl-layout-title" id="header-title">all</span>
                     <div class="mdl-layout-spacer"></div>
+                    <button id="demo-menu-lower-right" class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">more_vert</i>
+                    </button>
+
+                    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="demo-menu-lower-right">
+                        <li class="mdl-menu__item">
+                            <input id="send-image-button" class="hidden" type="file"/>
+                            <label for="send-image-button" class="label-for-input menu-element"><i class="material-icons" style="padding-top:0.em;">image</i>Send image</label>
+                        </li>
+                        <li class="mdl-menu__item menu-element" id="exit-channel-button"><i class="material-icons">close</i>Exit channel</li>
+                    </ul>
                 </div>
             </header>
             <div class="mdl-layout__drawer drawer">
                 <span class="mdl-layout-title" id="drawer-title">Chat()</span>
-                <nav class="mdl-navigation" id="channel-list">
-
+                <nav class="mdl-navigation" id="channel-list" style="flex-grow: 1;">
                     <button class="add-channel mdl-button mdl-js-button mdl-button--fab mdl-button--colored mdl-js-ripple-effect" id="add-channel-button" onclick="document.getElementById(`chat-layout`).MaterialLayout.hideDrawer()">
                         <i class="material-icons">add</i>
                     </button>
+                    <div class="mdl-layout-spacer"></div>
+                    <a class="mdl-navigation__link" href="https://github.com/Antollo/stormy-chat">
+                        <i class="material-icons">help_outline</i>
+                    </a>
                 </nav>
             </div>
             <main class="mdl-layout__content mdl-color--grey-200">
