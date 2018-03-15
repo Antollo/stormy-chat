@@ -152,16 +152,42 @@ $(document).ready(function () {
             mainSpan.css('float', 'left');
             message.addClass('mdl-color--amber-500')
         }
+        //mainSpan.data('time', messageObj.date);
+        listItem.attr('time', messageObj.date);
+        //mainSpan.prop('time', messageObj.date);
+
         //Build the message html and append it to the correct room div
         //mainSpan.append(icon);
         //mainSpan.append(user);
         mainSpan.append(message);
         mainSpan.append(time);
         listItem.append(mainSpan);
-        $('#messages-' + messageObj.conversation).append(listItem);
 
+        //return;
+        var $conversationObject = $('#messages-' + messageObj.conversation);
+        if ($conversationObject.children().length == 0) {
+            $conversationObject.append(listItem);
+        } else {
+            if ($conversationObject.children().first().attr('time') > messageObj.date) {
+                $conversationObject.children().first().before(listItem);
+            } else {
+                if ($conversationObject.children().last().attr('time') < messageObj.date) {
+                    $conversationObject.children().last().after(listItem);
+                } else {
+                    var $a = $conversationObject.children().last();
+                    while ($a != $conversationObject.children().first()) {
+                        if ($a.attr('time') < messageObj.date) {
+                            $a.after(listItem);
+                            break;
+                        } else {
+                            $a = $a.prev();
+                        }
+                    }
+                }
+            }
+        }
         //Scroll down
-        $('#chat-list-' + messageObj.conversation).animate({ scrollTop: $('#chat-list-' + messageObj.conversation).prop("scrollHeight") }, 100);
+        $('#chat-list-' + messageObj.conversation).animate({ scrollTop: $('#chat-list-' + messageObj.conversation).prop("scrollHeight") }, 50);
     });
 
     //Server sends
