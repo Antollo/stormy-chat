@@ -173,7 +173,7 @@ io.on('connection', function (socket) {
         MongoClient.connect(url, function (err, db) {
             if (err) throw err;
             var dbo = db.db('stormy-chat');
-            dbo.collection(messageObj.conversation).insertOne(messageObj, function(err, result) {
+            dbo.collection(messageObj.conversation).insertOne(messageObj, function(err, res) {
                 if (err) throw err;
                 console.log(messageObj);
                 db.close();

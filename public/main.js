@@ -26,9 +26,23 @@ $(document).ready(function () {
     var $addChannelFab = $('#add-channel-button'); //FAB button for opening add-channel-form
 
     var $channelsList = $('#channel-list'); //List of channels in navigation drawer
-    var currentChannel = 'all'; //Current channel
+    
+    var $emojiDialog = $('#emoji-dialog');
+    var $closeEmojiDialogButton = $('#close-emoji-dialog-button');
+    var $addEmojiButton = $('#add-emoji-button');
     
     var nickname = '';
+
+    Object.getOwnPropertyNames(emoji).forEach(function (category) {
+        emoji[category].forEach(function (character) {
+            var $button = $('<button class="mdl-button mdl-js-button mdl-button--icon"></button>');
+            $button.click(function () {
+                $sendMessageFormInput.parent().get(0).MaterialTextfield.change($sendMessageFormInput.val() + character);
+            })
+            $button.text(character);
+            $('#' + category + '-panel').append($button);
+        });
+    })
 
 
     //Send message form triggers
@@ -72,6 +86,7 @@ $(document).ready(function () {
         $addChannelWindow.get(0).close();
         $addChannelWindow.hide();
     });
+
     $addChannelForm.submit(function () {
         $addChannelWindow.get(0).close();
         $addChannelWindow.hide();
@@ -80,13 +95,20 @@ $(document).ready(function () {
     });
 
     //Open add new channel dialog
-    $addChannelFab.click(function () {
-        $loginWindow.hide();
-        //$chatWindow.hide();
-        
+    $addChannelFab.click(function () { 
         $addChannelWindow.get(0).showModal();
         $addChannelWindow.show();
     });
+
+    $addEmojiButton.click(function () {
+        $emojiDialog.get(0).showModal();
+        $emojiDialog.show();
+    })
+
+    $closeEmojiDialogButton.click(function () {
+        $emojiDialog.get(0).close();
+        $emojiDialog.hide();
+    })
 
     //Track the click of channel in the drawer
     $channelsList.click(function (e) {
@@ -113,7 +135,7 @@ $(document).ready(function () {
         $('#users').html('');
 
         //Loop through the users
-        for (i = 0; i < data.length; i++) {
+        for (var i = 0; i < data.length; i++) {
             var listItem = $('<li class="user-list-item mdl-list__item">');
             var mainSpan = $('<span class="mdl-list__item-primary-content"></span>');
             mainSpan.append('<i class="material-icons mdl-list__item-icon">person</i>' + data[i]);
@@ -131,7 +153,6 @@ $(document).ready(function () {
         //Create new message
         var listItem = $('<li class="mdl-list__item mdl non-flex"></li>');
         var mainSpan = $('<div></div>');
-        var icon = $('<i class="material-icons mdl-list__item-avatar">person</i>');
         //var user = $('<div class="small-text"></div>').text(messageObj.user);
         var message = $('<div class="bubble"></div>');
         if(messageObj.text != undefined) {
@@ -324,7 +345,7 @@ $(document).ready(function () {
                 $loadingWindow.hide();
                 $loginWindow.show();
             }
-            document.getElementById(`chat-layout`).MaterialLayout.hideDrawer = function () {
+            document.getElementById('chat-layout').MaterialLayout.hideDrawer = function () {
                 var drawerButton = this.element_.querySelector('.' + this.CssClasses_.DRAWER_BTN);
                 // Set accessibility properties.
                 if (this.drawer_.classList.contains(this.CssClasses_.IS_DRAWER_OPEN)) {
