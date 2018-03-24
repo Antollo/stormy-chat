@@ -33,6 +33,7 @@
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dialog-polyfill/0.4.9/dialog-polyfill.min.js"></script>
     <script src="emoji.js"></script>
+    <script src="blacklist.js"></script>
     <script src="main.js"></script>
 </head>
 
@@ -198,7 +199,15 @@
             <div class="mdl-dialog__actions">
                 <button id="close-emoji-dialog-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--accent">Close</button>
             </div>
-      </dialog>
+    </dialog>
+
+    <dialog id="ban-dialog" class="mdl-dialog">
+        <h3 class="mdl-dialog__title">Ban</h3>
+        <div class="mdl-dialog__content">
+            <h1 id="counter" style="text-align:center;">??</h1>
+        </div>
+        <div class="mdl-dialog__actions"></div>
+    </dialog>
 </body>
 
 </html>

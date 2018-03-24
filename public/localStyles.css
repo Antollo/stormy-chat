@@ -104,6 +104,10 @@
       padding: 10px;
       color: rgba(0,0,0, 0.54); }
 
+.rude {
+    opacity: 0.5;
+}
+
 .non-flex {
     display: -webkit-block;
     display: -ms-block;
@@ -161,7 +165,7 @@ a {
 .message-card {
     width: inherit;
     min-height: inherit;
-    border-radius: 50vh;
+    border-radius: 45px;
     padding: 0;
     margin: 0;
 }

@@ -2,24 +2,13 @@ var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var url = process.env.MONGOLAB_URI;
 console.log(url);
-/*MongoClient.connect(url, function (err, db) {
-    if (err) {
-      console.log('Unable to connect to the mongoDB server. Error:', err);
-    } else {
-        console.log('Connection established to', url);
-        var dbo = db.db('stormy-chat');
-        dbo.createCollection("users", function(err, res) {
-            if (err) throw err;
-            console.log("Collection created!");
-            db.close();
-        });
-    }
-});*/
 
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var cheerio = require('cheerio')
+var $ = cheerio.load('');
 var port = process.env.PORT || 3000;
 var users = {};
 var conversations = {};
@@ -34,6 +23,8 @@ app.get('/', function (req, res) {
 io.on('connection', function (socket) {
 
     socket.on('login', function (data, callback) {
+        data.nickname = $("<div>").html(data.nickname).text();
+        data.password = $("<div>").html(data.password).text();
         if (data.nickname in users) {
             //Already logged.
             console.log('User ' + data.nickname + ' tried to login in 2 windows.');
@@ -85,17 +76,11 @@ io.on('connection', function (socket) {
                     }
                 });
             });
-            /*callback(true);
-            socket.nickname = data.nickname;
-            users[socket.nickname] = socket;
-            socket.join('all');
-            if (conversations['all'] == undefined) conversations['all'] = [];
-            conversations['all'].push(socket.nickname);
-            io.emit('User ');*/
         }
     });
 
     socket.on('join', function (conversation) {
+        //conversation = $("<div>").html(conversation).text();
         socket.join(conversation);
         io.emit('user');
         if (conversations[conversation] == undefined) conversations[conversation] = [];
@@ -148,6 +133,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('exit', function (conversation) {
+        conversation = $("<div>").html(conversation).text();
         socket.leave(conversation);
         io.emit('user');
         if(conversations[conversation].indexOf(socket.nickname) != -1) conversations[conversation].splice(conversations[conversation].indexOf(socket.nickname), 1);
@@ -169,6 +155,11 @@ io.on('connection', function (socket) {
 
 
     socket.on('chat', function (messageObj) {
+        messageObj.text = $("<div>").html(messageObj.text).text();
+        if(messageObj.text.length == 0) return;
+        if(messageObj.image != undefined) messageObj.image = $("<div>").html(messageObj.image).text();
+        messageObj.user = $("<div>").html(messageObj.user).text();
+        messageObj.conversation = $("<div>").html(messageObj.conversation).text();
         io.to(messageObj.conversation).emit('chat', messageObj);
         MongoClient.connect(url, function (err, db) {
             if (err) throw err;
@@ -181,15 +172,17 @@ io.on('connection', function (socket) {
         });
     });
 
-    socket.on('getusers', function (data) {
-        socket.emit('users', conversations[data]);
+    socket.on('getusers', function (conversation) {
+        //conversation = $("<div>").html(conversation).text();
+        socket.emit('users', conversations[conversation]);
     });
 
-    socket.on('gethistory', function (name) {
+    socket.on('gethistory', function (conversation) {
+        //conversation = $("<div>").html(conversation).text();
         MongoClient.connect(url, function (err, db) {
             if (err) throw err;
             var dbo = db.db('stormy-chat');
-            dbo.collection(name).find({}).toArray(function(err, result) {
+            dbo.collection(conversation).find({}, {limit: 1000}).toArray(function(err, result) {
                 if (err) throw err;
                 result.forEach(function(message) {
                     socket.emit('chat', message);

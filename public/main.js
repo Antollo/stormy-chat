@@ -28,6 +28,7 @@ $(document).ready(function () {
     var $channelsList = $('#channel-list'); //List of channels in navigation drawer
     
     var $emojiDialog = $('#emoji-dialog');
+    var $banDialog = $('#ban-dialog');
     var $closeEmojiDialogButton = $('#close-emoji-dialog-button');
     var $addEmojiButton = $('#add-emoji-button');
     
@@ -44,11 +45,27 @@ $(document).ready(function () {
         });
     })
 
+    function getCaret(el) { 
+        if (el.selectionStart) { 
+            return el.selectionStart; 
+        } else if (document.selection) { 
+            el.focus();
+            var r = document.selection.createRange(); 
+            if (r == null) { 
+                return 0;
+            }
+            var re = el.createTextRange(), rc = re.duplicate();
+            re.moveToBookmark(r.getBookmark());
+            rc.setEndPoint('EndToStart', re);
+            return rc.text.length;
+        }  
+        return 0; 
+    }
+
 
     //Send message form triggers
     $sendMessageButton.click(function () {
         sendMessage();
-        return false;
     });
     $sendMessageForm.submit(function () {
         sendMessage();
@@ -67,7 +84,6 @@ $(document).ready(function () {
     //Login form triggers
     $loginButton.click(function () {
         login();
-        return false;
     });
     $loginForm.submit(function () {
         login();
@@ -79,7 +95,6 @@ $(document).ready(function () {
         $addChannelWindow.get(0).close();
         $addChannelWindow.hide();
         addNewChannel($addChannelFormInput.val());
-        return false;
     });
 
     $closeChannelButton.click(function () {
@@ -129,6 +144,23 @@ $(document).ready(function () {
         location.reload();
     })
 
+    $('textarea').keyup(function (event) {
+        if (event.keyCode == 13) {
+            var content = this.value;  
+            var caret = getCaret(this);          
+            if(event.shiftKey){
+                this.value = content.substring(0, caret - 1) + '\n' + content.substring(caret, content.length);
+                event.stopPropagation();
+            } else {
+                this.value = content.substring(0, caret - 1) + content.substring(caret, content.length);
+                sendMessage();
+            }
+        }
+    });
+    $sendMessageFormInput.on('change keyup keydown paste cut', function (){
+        $(this).height(0).height(this.scrollHeight);
+    });
+
     //SOCKET FUNCTIONS
     //Server sends list of users
     socket.on('users', function (data) {
@@ -171,7 +203,7 @@ $(document).ready(function () {
         else
         {
             mainSpan.css('float', 'left');
-            message.addClass('mdl-color--amber-500')
+            message.addClass('mdl-color--amber-500');
         }
         //mainSpan.data('time', messageObj.date);
         listItem.attr('time', messageObj.date);
@@ -184,7 +216,8 @@ $(document).ready(function () {
         mainSpan.append(time);
         listItem.append(mainSpan);
 
-        //return;
+        if (checkMessage(messageObj.text) == 1) listItem.addClass('rude');
+        if (checkMessage(messageObj.text) > 1) return;
         var $conversationObject = $('#messages-' + messageObj.conversation);
         if ($conversationObject.children().length == 0) {
             $conversationObject.append(listItem);
@@ -318,6 +351,8 @@ $(document).ready(function () {
             }
         });
         socket.emit('chat', { text: $sendMessageFormInput.val(), user: nickname, conversation: currentroom, date: new Date().getTime()});
+        var seconds = checkMessage($sendMessageFormInput.val()) * 5;
+        if (seconds != 0) ban(seconds);
         $sendMessageFormInput.parent().get(0).MaterialTextfield.change('');
     }
 
@@ -330,6 +365,37 @@ $(document).ready(function () {
         });
         socket.emit('chat', { image: base64, user: nickname, conversation: currentroom, date: new Date().getTime()});
     }
+
+    function checkMessage(text) {
+        if(text == undefined) return 0;
+        var counter = 0;
+        text = text.toLowerCase();
+        blacklist.forEach(function (word) {
+            if (text.indexOf(word) != -1) {
+                counter++;
+            }
+        })
+        return counter;        
+    }
+
+    function ban(seconds) {
+        $(".mdl-js-snackbar").get(0).MaterialSnackbar.showSnackbar({message: 'Your message may be rude.'});
+        seconds = seconds;
+        $chatWindow.hide();
+        $banDialog.get(0).showModal();
+        $banDialog.show();
+        var interval = setInterval(function () {
+            if (seconds == 0) {
+                window.clearInterval(interval);
+                $banDialog.get(0).close();
+                $banDialog.hide();
+                $chatWindow.show();
+            }
+            $('#counter').text(seconds);
+            seconds--;
+        }, 1000);
+    }
+
     var loadingCounter = 0;
     $('.mdl-layout').on('mdl-componentupgraded', function(e) {
         if ($(e.target).hasClass('mdl-layout')) {
@@ -355,10 +421,11 @@ $(document).ready(function () {
                     drawerButton.setAttribute('aria-expanded', 'false');
                 }
             };
-            var dialog = $addChannelWindow.get(0);
-            if (! dialog.showModal) {
-                dialogPolyfill.registerDialog(dialog);
-            }
+            $('dialog').get().forEach(function (dialog) {
+                if (!dialog.showModal) {
+                    dialogPolyfill.registerDialog(dialog);
+                }
+            });
         }
     });
 });

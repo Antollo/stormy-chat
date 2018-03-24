@@ -5,7 +5,8 @@
   "dependencies": {
     "express": "^4.16.2",
     "socket.io": "^2.0.4",
-    "mongodb": "^3.0.4"
+    "mongodb": "^3.0.4",
+    "chererio": "^1.0.0"
   },
   "main": "index.js",
   "scripts": {
