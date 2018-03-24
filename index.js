@@ -155,9 +155,13 @@ io.on('connection', function (socket) {
 
 
     socket.on('chat', function (messageObj) {
-        messageObj.text = $("<div>").html(messageObj.text).text();
-        if(messageObj.text.length == 0) return;
-        if(messageObj.image != undefined) messageObj.image = $("<div>").html(messageObj.image).text();
+        if(messageObj.text != undefined) {
+            messageObj.text = $("<div>").html(messageObj.text).text();
+            if(messageObj.text.length == 0) return;
+        }
+        if(messageObj.image != undefined) {
+            messageObj.image = $("<div>").html(messageObj.image).text();
+        }
         messageObj.user = $("<div>").html(messageObj.user).text();
         messageObj.conversation = $("<div>").html(messageObj.conversation).text();
         io.to(messageObj.conversation).emit('chat', messageObj);
