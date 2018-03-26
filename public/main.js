@@ -32,6 +32,8 @@ $(document).ready(function () {
     var $closeEmojiDialogButton = $('#close-emoji-dialog-button');
     var $addEmojiButton = $('#add-emoji-button');
     
+    var $impoliteSwitch = $('#impolite-switch');
+
     var nickname = '';
 
     Object.getOwnPropertyNames(emoji).forEach(function (category) {
@@ -157,9 +159,18 @@ $(document).ready(function () {
             }
         }
     });
+
     $sendMessageFormInput.on('change keyup keydown paste cut', function (){
         $(this).height(0).height(this.scrollHeight);
     });
+
+    $impoliteSwitch.click(function () {
+        if($impoliteSwitch.get(0).checked) {
+            $('.impolite').hide();
+        } else {
+            $('.impolite').show();
+        }
+      });
 
     //SOCKET FUNCTIONS
     //Server sends list of users
@@ -215,8 +226,9 @@ $(document).ready(function () {
         mainSpan.append(message);
         mainSpan.append(time);
         listItem.append(mainSpan);
+        listItem.css('padding','8px');
 
-        if (checkMessage(messageObj.text) == 1) listItem.addClass('rude');
+        if (checkMessage(messageObj.text) == 1) listItem.addClass('impolite');
         if (checkMessage(messageObj.text) > 1) return;
         var $conversationObject = $('#messages-' + messageObj.conversation);
         if ($conversationObject.children().length == 0) {
@@ -379,9 +391,10 @@ $(document).ready(function () {
     }
 
     function ban(seconds) {
-        $(".mdl-js-snackbar").get(0).MaterialSnackbar.showSnackbar({message: 'Your message may be rude.'});
+        $('#counter').text('?');
+        $(".mdl-js-snackbar").get(0).MaterialSnackbar.showSnackbar({message: 'Your message may be impolite.'});
         seconds = seconds;
-        $chatWindow.hide();
+        //$chatWindow.hide();
         $banDialog.get(0).showModal();
         $banDialog.show();
         var interval = setInterval(function () {
@@ -389,7 +402,7 @@ $(document).ready(function () {
                 window.clearInterval(interval);
                 $banDialog.get(0).close();
                 $banDialog.hide();
-                $chatWindow.show();
+                //$chatWindow.show();
             }
             $('#counter').text(seconds);
             seconds--;

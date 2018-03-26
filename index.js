@@ -161,7 +161,7 @@ io.on('connection', function (socket) {
         }
         if(messageObj.image != undefined) {
             messageObj.image = $("<div>").html(messageObj.image).text();
-        }
+        }   
         messageObj.user = $("<div>").html(messageObj.user).text();
         messageObj.conversation = $("<div>").html(messageObj.conversation).text();
         io.to(messageObj.conversation).emit('chat', messageObj);
