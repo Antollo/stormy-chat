@@ -35,6 +35,7 @@ $(document).ready(function () {
     var $impoliteSwitch = $('#impolite-switch');
 
     var nickname = '';
+    var currentChannel = '';
 
     Object.getOwnPropertyNames(emoji).forEach(function (category) {
         emoji[category].forEach(function (character) {
@@ -160,8 +161,10 @@ $(document).ready(function () {
         }
     });
 
-    $sendMessageFormInput.on('change keyup keydown paste cut', function (){
+    $sendMessageFormInput.on('change keyup keydown paste cut', function () {
         $(this).height(0).height(this.scrollHeight);
+        $('.chat-area').css('padding-bottom', $('.message-area').outerHeight());
+        $('#chat-list-' + currentChannel).animate({ scrollTop: $('#chat-list-' + currentChannel).prop("scrollHeight") }, 50);
     });
 
     $impoliteSwitch.click(function () {
@@ -439,6 +442,10 @@ $(document).ready(function () {
                     dialogPolyfill.registerDialog(dialog);
                 }
             });
+            setTimeout(function () {
+                $('.chat-area').css('padding-bottom', $('.message-area').outerHeight());
+                $('#chat-list-' + currentChannel).animate({ scrollTop: $('#chat-list-' + currentChannel).prop("scrollHeight") }, 50);
+            }, 1000);
         }
     });
 });

@@ -4,6 +4,7 @@
 
 #chat-cell {
     margin-top: 0;
+    max-height: 100%;
 }
 
 #login {
@@ -16,6 +17,14 @@
 
 #channel > .mdl-dialog__content {
     padding: 24px;
+}
+
+#channel {
+    height: 232px;
+}
+
+#emoji-dialog {
+    height: 386px;
 }
 
 .mdl-tabs__panel {
@@ -69,6 +78,7 @@
     left: 0;
     z-index: 900;
     border-radius: 2px;
+    
 }
     .mdl-dialog__title {
       padding: 24px 24px 0;
@@ -128,9 +138,9 @@ a {
 }
 
 .navigation {
-  -webkit-flex-grow: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1;
+    -webkit-flex-grow: 1;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
 }
 
 .centrify {
@@ -163,7 +173,7 @@ a {
 }
 
 .message-card {
-    width: inherit;
+    width: 100%;
     min-height: inherit;
     border-radius: 45px;
     padding: 0;
@@ -185,18 +195,19 @@ a {
     right : 0;
     top: 0;
     bottom: 0;
+    max-height: 100%;
+    padding-bottom: 500px;
 }
 
 .user-card {
-    height: 80%;
-    padding-bottom: 16px;
+    max-height: 80%;
 }
 
 .chat-list-div {
     padding: 0;
-    padding-bottom: 16px;
+    /*padding-bottom: 100px;*/
     overflow: auto;
-    height: 80%;
+    height: 100%;
     display: none;
 }
 
@@ -230,4 +241,8 @@ em {
     font-weight: 300;
     font-size: 13px;
     color: #757575;
+}
+
+#send-message-form-input {
+    height: 26px;
 }
