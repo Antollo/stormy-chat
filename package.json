@@ -15,6 +15,6 @@
   "author": "Antoni Nowinowski",
   "license": "MIT",
   "engines": {
-    "node": "4.6.0"
+    "node": "12.x"
   }
 }
